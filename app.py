@@ -21,6 +21,7 @@ from config import Config, allowed_notes_file, allowed_image_file
 # ===========================
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT", 3306))
 
 # ===========================
 # MySQL Initialization

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback — Digital Learning Platform Nabha{% endblock %}
+
+{% block content %}
+
+<!-- Page Top Spacing for Fixed Navbar -->
+<div style="padding-top: 70px;"></div>
+
+<!-- ============================================================
+     FEEDBACK SECTION
+     ============================================================ -->
+<section style="min-height: calc(100vh - 70px); display:flex; align-items:center;
+                background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f5f3ff 100%);
+                padding: 3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9">
+
+        <!-- Feedback Card -->
+        <div class="form-wrapper animate-fade-up">
+
+          <!-- Card Header -->
+          <div class="form-header text-center">
+            <div class="mx-auto mb-3"
+                 style="width:65px;height:65px;background:rgba(255,255,255,0.2);
+                        border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;font-size:1.8rem;">
+              <i class="fas fa-comment-dots"></i>
+            </div>
+            <h2 class="fw-800 mb-1">We'd Love Your Feedback!</h2>
+            <p class="mb-0 opacity-75">
+              Help us improve the platform for all rural students
+            </p>
+          </div>
+
+          <!-- Card Body -->
+          <div class="form-body">
+
+            <form method="POST" action="{{ url_for('feedback') }}" id="feedbackForm">
+
+              <div class="mb-3">
+                <label for="message" class="form-label">
+                  <i class="fas fa-pen me-1 text-primary"></i> Your Feedback
+                </label>
+                <textarea class="form-control"
+                          id="message"
+                          name="message"
+                          rows="6"
+                          placeholder="Tell us what you think about the platform — what you like, what could be improved, or any issues you faced..."
+                          required
+                          minlength="10"
+                          maxlength="1000"></textarea>
+                <div class="d-flex justify-content-between mt-1">
+                  <small class="text-muted">Minimum 10 characters</small>
+                  <small class="text-muted" id="charCount">0 / 1000</small>
+                </div>
+              </div>
+
+              <!-- Quick Feedback Tags (UX helper, optional selection) -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="fas fa-tags me-1 text-primary"></i> Quick Tags (optional)
+                </label>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary feedback-tag">
+                    <i class="fas fa-video me-1"></i> Videos
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary feedback-tag">
+                    <i class="fas fa-file-pdf me-1"></i> Notes
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary feedback-tag">
+                    <i class="fas fa-question-circle me-1"></i> Quiz
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary feedback-tag">
+                    <i class="fas fa-palette me-1"></i> Design
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary feedback-tag">
+                    <i class="fas fa-bug me-1"></i> Bug Report
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 btn-lg">
+                <i class="fas fa-paper-plane me-2"></i> Submit Feedback
+              </button>
+
+            </form>
+
+          </div><!-- /.form-body -->
+        </div><!-- /.form-wrapper -->
+
+        <!-- Why Feedback Matters -->
+        <div class="row g-3 mt-3">
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-heart text-danger mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">We Read Every Word</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-chart-line text-success mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Helps Us Improve</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-user-shield text-primary mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Reviewed by Admin</small>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container -->
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Character counter for feedback textarea
+  document.addEventListener('DOMContentLoaded', function () {
+    const textarea  = document.getElementById('message');
+    const charCount = document.getElementById('charCount');
+    const tags      = document.querySelectorAll('.feedback-tag');
+
+    if (textarea && charCount) {
+      textarea.addEventListener('input', function () {
+        const length = this.value.length;
+        charCount.textContent = length + ' / 1000';
+        charCount.style.color = length > 900 ? '#ef4444' : '';
+      });
+    }
+
+    // Quick tag buttons — append tag text to feedback message
+    tags.forEach(function (tag) {
+      tag.addEventListener('click', function () {
+        this.classList.toggle('btn-outline-primary');
+        this.classList.toggle('btn-primary');
+
+        const tagText = this.textContent.trim();
+        const prefix  = textarea.value.trim().length > 0 ? ' ' : '';
+
+        if (this.classList.contains('btn-primary')) {
+          textarea.value += prefix + '[' + tagText + '] ';
+        }
+
+        textarea.dispatchEvent(new Event('input'));
+        textarea.focus();
+      });
+    });
+  });
+</script>
+{% endblock %}

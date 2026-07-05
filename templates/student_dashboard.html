@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard — Digital Learning Platform Nabha{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  <!-- ============================================================
+       DASHBOARD HEADER
+       ============================================================ -->
+  <div class="dashboard-header">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1><i class="fas fa-th-large me-2"></i> Welcome back, {{ student.name.split()[0] }}! 👋</h1>
+          <p>Continue your learning journey. You're doing great!</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+          <a href="{{ url_for('courses') }}" class="btn btn-lg"
+             style="background:white;color:var(--primary);font-weight:700;">
+            <i class="fas fa-book-open me-2"></i> Browse Courses
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ============================================================
+         QUICK NAVIGATION
+         ============================================================ -->
+    <div class="dashboard-nav">
+      <a href="{{ url_for('student_dashboard') }}" class="active">
+        <i class="fas fa-th-large"></i> Dashboard
+      </a>
+      <a href="{{ url_for('courses') }}">
+        <i class="fas fa-book"></i> Courses
+      </a>
+      <a href="{{ url_for('videos') }}">
+        <i class="fas fa-play-circle"></i> Videos
+      </a>
+      <a href="{{ url_for('notes') }}">
+        <i class="fas fa-file-alt"></i> Notes
+      </a>
+      <a href="{{ url_for('profile') }}">
+        <i class="fas fa-user"></i> Profile
+      </a>
+      <a href="{{ url_for('feedback') }}">
+        <i class="fas fa-comment"></i> Feedback
+      </a>
+    </div>
+
+    <!-- ============================================================
+         STATS ROW
+         ============================================================ -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#eff6ff,#dbeafe)">
+            <i class="fas fa-book" style="color:#2563eb"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_courses }}</div>
+            <div class="stat-card-label">Total Courses</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+            <i class="fas fa-play-circle" style="color:#10b981"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ latest_videos|length }}</div>
+            <div class="stat-card-label">New Videos</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#fef2f2,#fee2e2)">
+            <i class="fas fa-file-pdf" style="color:#ef4444"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ latest_notes|length }}</div>
+            <div class="stat-card-label">New Notes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">
+            <i class="fas fa-trophy" style="color:#f59e0b"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ quiz_results|length }}</div>
+            <div class="stat-card-label">Quizzes Taken</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.stats row -->
+
+
+    <div class="row g-4">
+
+      <!-- ============================================================
+           LATEST VIDEOS
+           ============================================================ -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-700 mb-0">
+                <i class="fas fa-play-circle text-success me-2"></i> Latest Videos
+              </h5>
+              <a href="{{ url_for('videos') }}" class="small text-primary fw-600">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+
+            {% if latest_videos %}
+              {% for video in latest_videos %}
+              <div class="d-flex align-items-center gap-3 mb-3 pb-3"
+                   style="border-bottom:1px solid #f1f5f9;">
+                <div style="width:50px;height:50px;background:linear-gradient(135deg,#10b981,#059669);
+                            border-radius:10px;display:flex;align-items:center;justify-content:center;
+                            color:white;font-size:1.2rem;flex-shrink:0;">
+                  <i class="fas fa-play"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-600 small">{{ video.title }}</p>
+                  <small class="text-muted">{{ video.course_name }}</small>
+                </div>
+                <a href="{{ url_for('videos') }}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-play"></i>
+                </a>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state py-4">
+                <div class="empty-state-icon"><i class="fas fa-video"></i></div>
+                <p class="text-muted mb-0">No videos available yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           LATEST NOTES
+           ============================================================ -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-700 mb-0">
+                <i class="fas fa-file-pdf text-danger me-2"></i> Latest Notes
+              </h5>
+              <a href="{{ url_for('notes') }}" class="small text-primary fw-600">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+
+            {% if latest_notes %}
+              {% for note in latest_notes %}
+              <div class="d-flex align-items-center gap-3 mb-3 pb-3"
+                   style="border-bottom:1px solid #f1f5f9;">
+                <div style="width:50px;height:50px;background:linear-gradient(135deg,#ef4444,#dc2626);
+                            border-radius:10px;display:flex;align-items:center;justify-content:center;
+                            color:white;font-size:1.2rem;flex-shrink:0;">
+                  <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-600 small">{{ note.title }}</p>
+                  <small class="text-muted">{{ note.course_name }}</small>
+                </div>
+                <a href="{{ url_for('download_note', note_id=note.id) }}"
+                   class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state py-4">
+                <div class="empty-state-icon"><i class="fas fa-file-pdf"></i></div>
+                <p class="text-muted mb-0">No notes available yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           QUIZ RESULTS / LEARNING PROGRESS
+           ============================================================ -->
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-700 mb-0">
+                <i class="fas fa-chart-line text-warning me-2"></i> My Quiz Results
+              </h5>
+              <span class="badge-primary">Learning Progress</span>
+            </div>
+
+            {% if quiz_results %}
+            <div class="table-responsive">
+              <table class="table table-custom mb-0">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Score</th>
+                    <th>Performance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for result in quiz_results %}
+                  <tr>
+                    <td class="fw-600">{{ result.course_name }}</td>
+                    <td>{{ result.score }} / 5</td>
+                    <td style="width:200px;">
+                      <div class="progress" style="height:8px;border-radius:50px;">
+                        <div class="progress-bar
+                                    {{ 'bg-success' if result.score >= 4
+                                       else 'bg-warning' if result.score >= 2
+                                       else 'bg-danger' }}"
+                             role="progressbar"
+                             style="width:{{ (result.score / 5 * 100)|round }}%;border-radius:50px;">
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if result.score >= 4 %}
+                        <span class="badge-success"><i class="fas fa-check-circle me-1"></i> Excellent</span>
+                      {% elif result.score >= 2 %}
+                        <span class="badge-primary"><i class="fas fa-info-circle me-1"></i> Good</span>
+                      {% else %}
+                        <span class="badge-danger"><i class="fas fa-redo me-1"></i> Needs Practice</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+              <div class="empty-state py-4">
+                <div class="empty-state-icon"><i class="fas fa-trophy"></i></div>
+                <h4>No Quizzes Taken Yet</h4>
+                <p class="mb-3">Start taking quizzes to track your progress here.</p>
+                <a href="{{ url_for('courses') }}" class="btn btn-primary">
+                  <i class="fas fa-play me-2"></i> Start a Quiz
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.row -->
+
+    <div class="py-4"></div>
+
+  </div><!-- /.container -->
+</div><!-- /.dashboard-wrapper -->
+
+{% endblock %}

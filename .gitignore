@@ -1,0 +1,96 @@
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pyc
+
+# ===========================
+# Virtual Environment
+# ===========================
+venv/
+env/
+ENV/
+.venv/
+.env
+
+# ===========================
+# Flask / App Specific
+# ===========================
+instance/
+.webassets-cache
+flask_session/
+
+# ===========================
+# Database
+# ===========================
+*.db
+*.sqlite3
+
+# ===========================
+# Uploaded Files (user data)
+# ===========================
+static/images/uploads/notes/*
+static/images/uploads/course_images/*
+
+# Keep the upload folders tracked but ignore contents
+!static/images/uploads/notes/.gitkeep
+!static/images/uploads/course_images/.gitkeep
+
+# ===========================
+# Environment Variables
+# ===========================
+.env
+.env.local
+.env.production
+
+# ===========================
+# IDE / Editor
+# ===========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===========================
+# OS Generated
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Logs
+# ===========================
+*.log
+logs/
+
+# ===========================
+# Distribution / Packaging
+# ===========================
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+
+# ===========================
+# Testing
+# ===========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===========================
+# Render Deployment
+# ===========================
+.render/

@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if admin_mode %}Admin Login{% else %}Student Login{% endif %}
+  — Digital Learning Platform Nabha
+{% endblock %}
+
+{% block body_class %}bg-light{% endblock %}
+
+{% block content %}
+
+<!-- Page Top Spacing for Fixed Navbar -->
+<div style="padding-top: 70px;"></div>
+
+<!-- ============================================================
+     LOGIN SECTION
+     ============================================================ -->
+<section style="min-height: calc(100vh - 70px); display:flex; align-items:center;
+                background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f5f3ff 100%);
+                padding: 3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-5 col-md-7 col-sm-10">
+
+        <!-- Login Card -->
+        <div class="form-wrapper animate-fade-up">
+
+          <!-- Card Header -->
+          <div class="form-header text-center">
+            <div class="mx-auto mb-3"
+                 style="width:65px;height:65px;background:rgba(255,255,255,0.2);
+                        border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;font-size:1.8rem;">
+              {% if admin_mode %}
+                <i class="fas fa-user-shield"></i>
+              {% else %}
+                <i class="fas fa-graduation-cap"></i>
+              {% endif %}
+            </div>
+            <h2 class="fw-800 mb-1">
+              {% if admin_mode %}Admin Login{% else %}Welcome Back!{% endif %}
+            </h2>
+            <p class="mb-0 opacity-75">
+              {% if admin_mode %}
+                Sign in to manage the platform
+              {% else %}
+                Sign in to continue learning
+              {% endif %}
+            </p>
+          </div>
+
+          <!-- Card Body -->
+          <div class="form-body">
+
+            <!-- Login Type Toggle (Student only) -->
+            {% if not admin_mode %}
+            <div class="d-flex rounded-pill overflow-hidden mb-4"
+                 style="background:#f1f5f9;padding:4px;">
+              <a href="{{ url_for('login') }}"
+                 class="flex-fill text-center py-2 rounded-pill fw-600 text-decoration-none
+                        {{ 'text-white' if not admin_mode else 'text-muted' }}"
+                 style="{{ 'background:var(--gradient-primary);' if not admin_mode else '' }}
+                        font-size:0.9rem;transition:all 0.3s;">
+                <i class="fas fa-user-graduate me-1"></i> Student
+              </a>
+              <a href="{{ url_for('admin_login') }}"
+                 class="flex-fill text-center py-2 rounded-pill fw-600 text-decoration-none text-muted"
+                 style="font-size:0.9rem;transition:all 0.3s;">
+                <i class="fas fa-user-shield me-1"></i> Admin
+              </a>
+            </div>
+            {% endif %}
+
+            {% if admin_mode %}
+            <div class="d-flex rounded-pill overflow-hidden mb-4"
+                 style="background:#f1f5f9;padding:4px;">
+              <a href="{{ url_for('login') }}"
+                 class="flex-fill text-center py-2 rounded-pill fw-600 text-decoration-none text-muted"
+                 style="font-size:0.9rem;transition:all 0.3s;">
+                <i class="fas fa-user-graduate me-1"></i> Student
+              </a>
+              <a href="{{ url_for('admin_login') }}"
+                 class="flex-fill text-center py-2 rounded-pill fw-600 text-decoration-none text-white"
+                 style="background:var(--gradient-primary);font-size:0.9rem;transition:all 0.3s;">
+                <i class="fas fa-user-shield me-1"></i> Admin
+              </a>
+            </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="POST"
+                  action="{{ url_for('admin_login') if admin_mode else url_for('login') }}"
+                  autocomplete="off">
+
+              <!-- Username / Email Field -->
+              {% if admin_mode %}
+              <div class="mb-3">
+                <label for="username" class="form-label">
+                  <i class="fas fa-user me-1 text-primary"></i> Admin Username
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-user-shield"></i>
+                  </span>
+                  <input type="text"
+                         class="form-control"
+                         id="username"
+                         name="username"
+                         placeholder="Enter admin username"
+                         required
+                         autocomplete="off" />
+                </div>
+              </div>
+              {% else %}
+              <div class="mb-3">
+                <label for="email" class="form-label">
+                  <i class="fas fa-envelope me-1 text-primary"></i> Email Address
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input type="email"
+                         class="form-control"
+                         id="email"
+                         name="email"
+                         placeholder="Enter your email"
+                         required
+                         autocomplete="email" />
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Password Field -->
+              <div class="mb-4">
+                <label for="password" class="form-label">
+                  <i class="fas fa-lock me-1 text-primary"></i> Password
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password"
+                         class="form-control"
+                         id="password"
+                         name="password"
+                         placeholder="Enter your password"
+                         required
+                         autocomplete="current-password" />
+                  <button type="button"
+                          class="btn btn-outline-secondary password-toggle"
+                          data-target="password"
+                          title="Show password"
+                          style="border-left:none;">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                {% if admin_mode %}
+                  <i class="fas fa-sign-in-alt me-2"></i> Admin Login
+                {% else %}
+                  <i class="fas fa-sign-in-alt me-2"></i> Login to My Account
+                {% endif %}
+              </button>
+
+            </form>
+
+            <!-- Divider -->
+            {% if not admin_mode %}
+            <div class="text-center my-3">
+              <span class="text-muted small">
+                ─────── or ───────
+              </span>
+            </div>
+
+            <!-- Register Link -->
+            <div class="text-center">
+              <p class="text-muted small mb-0">
+                Don't have an account?
+                <a href="{{ url_for('register') }}" class="fw-700 text-primary">
+                  Register for Free
+                </a>
+              </p>
+            </div>
+            {% endif %}
+
+          </div><!-- /.form-body -->
+        </div><!-- /.form-wrapper -->
+
+        <!-- Info Cards Below Form -->
+        {% if not admin_mode %}
+        <div class="row g-3 mt-3">
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-lock text-primary mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Secure Login</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-infinity text-success mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Free Forever</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-mobile-alt text-warning mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Any Device</small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container -->
+</section>
+
+{% endblock %}

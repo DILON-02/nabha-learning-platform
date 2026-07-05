@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Register — Digital Learning Platform Nabha{% endblock %}
+
+{% block body_class %}bg-light{% endblock %}
+
+{% block content %}
+
+<!-- Page Top Spacing for Fixed Navbar -->
+<div style="padding-top: 70px;"></div>
+
+<!-- ============================================================
+     REGISTER SECTION
+     ============================================================ -->
+<section style="min-height: calc(100vh - 70px); display:flex; align-items:center;
+                background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f5f3ff 100%);
+                padding: 3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 col-sm-10">
+
+        <!-- Register Card -->
+        <div class="form-wrapper animate-fade-up">
+
+          <!-- Card Header -->
+          <div class="form-header text-center">
+            <div class="mx-auto mb-3"
+                 style="width:65px;height:65px;background:rgba(255,255,255,0.2);
+                        border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;font-size:1.8rem;">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 class="fw-800 mb-1">Create Your Account</h2>
+            <p class="mb-0 opacity-75">Join DLP Nabha — 100% free, always</p>
+          </div>
+
+          <!-- Card Body -->
+          <div class="form-body">
+
+            <form method="POST" action="{{ url_for('register') }}"
+                  id="registerForm" autocomplete="off">
+
+              <div class="row g-3">
+
+                <!-- Full Name -->
+                <div class="col-md-6">
+                  <label for="name" class="form-label">
+                    <i class="fas fa-user me-1 text-primary"></i> Full Name
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="name"
+                         name="name"
+                         placeholder="Enter your full name"
+                         required
+                         minlength="3"
+                         autocomplete="name" />
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6">
+                  <label for="phone" class="form-label">
+                    <i class="fas fa-phone me-1 text-primary"></i> Phone Number
+                  </label>
+                  <input type="tel"
+                         class="form-control"
+                         id="phone"
+                         name="phone"
+                         placeholder="10-digit phone number"
+                         required
+                         pattern="[0-9]{10}"
+                         maxlength="10"
+                         autocomplete="tel" />
+                </div>
+
+                <!-- Email -->
+                <div class="col-12">
+                  <label for="email" class="form-label">
+                    <i class="fas fa-envelope me-1 text-primary"></i> Email Address
+                  </label>
+                  <input type="email"
+                         class="form-control"
+                         id="email"
+                         name="email"
+                         placeholder="Enter your email address"
+                         required
+                         autocomplete="email" />
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6">
+                  <label for="password" class="form-label">
+                    <i class="fas fa-lock me-1 text-primary"></i> Password
+                  </label>
+                  <div class="input-group">
+                    <input type="password"
+                           class="form-control"
+                           id="password"
+                           name="password"
+                           placeholder="Min. 6 characters"
+                           required
+                           minlength="6"
+                           autocomplete="new-password" />
+                    <button type="button"
+                            class="btn btn-outline-secondary password-toggle"
+                            data-target="password"
+                            title="Show password">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-6">
+                  <label for="confirm_password" class="form-label">
+                    <i class="fas fa-lock me-1 text-primary"></i> Confirm Password
+                  </label>
+                  <div class="input-group">
+                    <input type="password"
+                           class="form-control"
+                           id="confirm_password"
+                           name="confirm_password"
+                           placeholder="Re-enter password"
+                           required
+                           minlength="6"
+                           autocomplete="new-password" />
+                    <button type="button"
+                            class="btn btn-outline-secondary password-toggle"
+                            data-target="confirm_password"
+                            title="Show password">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           id="terms" required />
+                    <label class="form-check-label small text-muted" for="terms">
+                      I agree to the
+                      <a href="#" class="text-primary fw-600">Terms of Service</a>
+                      and
+                      <a href="#" class="text-primary fw-600">Privacy Policy</a>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="col-12 mt-4">
+                  <button type="submit" class="btn btn-primary w-100 btn-lg">
+                    <i class="fas fa-user-plus me-2"></i> Create My Account
+                  </button>
+                </div>
+
+              </div><!-- /.row -->
+            </form>
+
+            <!-- Divider -->
+            <div class="text-center my-3">
+              <span class="text-muted small">─────── or ───────</span>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center">
+              <p class="text-muted small mb-0">
+                Already have an account?
+                <a href="{{ url_for('login') }}" class="fw-700 text-primary">
+                  Login Here
+                </a>
+              </p>
+            </div>
+
+          </div><!-- /.form-body -->
+        </div><!-- /.form-wrapper -->
+
+        <!-- Benefits Strip -->
+        <div class="row g-3 mt-3">
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-bolt text-primary mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Instant Access</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-shield-alt text-success mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">Data Secure</small>
+            </div>
+          </div>
+          <div class="col-4 text-center">
+            <div class="p-3 rounded-3 bg-white shadow-sm">
+              <i class="fas fa-gift text-warning mb-1 d-block"></i>
+              <small class="text-muted fw-600" style="font-size:0.75rem;">No Hidden Fees</small>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container -->
+</section>
+
+{% endblock %}

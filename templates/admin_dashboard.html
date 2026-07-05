@@ -1,0 +1,741 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel — Digital Learning Platform Nabha{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+
+{% set section = section|default('overview') %}
+
+<div class="admin-layout">
+
+  <!-- ============================================================
+       SIDEBAR TOGGLE OVERLAY (mobile)
+       ============================================================ -->
+  <div id="sidebarOverlay"
+       style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:998;"
+       class="sidebar-overlay-el"></div>
+
+  <!-- ============================================================
+       ADMIN SIDEBAR
+       ============================================================ -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-header">
+      <div class="admin-avatar">
+        {{ session.admin_username[0].upper() if session.admin_username else 'A' }}
+      </div>
+      <div>
+        <p class="mb-0 fw-700 text-white">{{ session.admin_username or 'Admin' }}</p>
+        <small class="text-white-50">Administrator</small>
+      </div>
+    </div>
+
+    <nav class="admin-sidebar-nav">
+      <div class="admin-nav-section">Main</div>
+      <a href="{{ url_for('admin_dashboard') }}"
+         class="admin-nav-link {{ 'active' if section == 'overview' }}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+
+      <div class="admin-nav-section">Content Management</div>
+      <a href="{{ url_for('admin_manage', section='courses') }}"
+         class="admin-nav-link {{ 'active' if section in ['courses','add_course','edit_course'] }}">
+        <i class="fas fa-book"></i> Courses
+      </a>
+      <a href="{{ url_for('admin_manage', section='videos') }}"
+         class="admin-nav-link {{ 'active' if section in ['videos','add_video'] }}">
+        <i class="fas fa-video"></i> Videos
+      </a>
+      <a href="{{ url_for('admin_manage', section='notes') }}"
+         class="admin-nav-link {{ 'active' if section in ['notes','add_note'] }}">
+        <i class="fas fa-file-pdf"></i> Notes
+      </a>
+      <a href="{{ url_for('admin_manage', section='quiz') }}"
+         class="admin-nav-link {{ 'active' if section in ['quiz','add_quiz'] }}">
+        <i class="fas fa-question-circle"></i> Quiz Questions
+      </a>
+
+      <div class="admin-nav-section">Users & Reports</div>
+      <a href="{{ url_for('admin_students') }}"
+         class="admin-nav-link {{ 'active' if section == 'students' }}">
+        <i class="fas fa-users"></i> Students
+      </a>
+      <a href="{{ url_for('admin_results') }}"
+         class="admin-nav-link {{ 'active' if section == 'results' }}">
+        <i class="fas fa-chart-bar"></i> Quiz Results
+      </a>
+      <a href="{{ url_for('admin_feedback') }}"
+         class="admin-nav-link {{ 'active' if section == 'feedback' }}">
+        <i class="fas fa-comment-dots"></i> Feedback
+      </a>
+
+      <div class="admin-nav-section">Account</div>
+      <a href="{{ url_for('index') }}" class="admin-nav-link">
+        <i class="fas fa-globe"></i> View Website
+      </a>
+      <a href="{{ url_for('admin_logout') }}" class="admin-nav-link text-danger">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ============================================================
+       ADMIN CONTENT AREA
+       ============================================================ -->
+  <div class="admin-content">
+
+    <!-- Mobile Sidebar Toggle Button -->
+    <button id="sidebarToggle" class="btn btn-primary d-lg-none mb-3">
+      <i class="fas fa-bars me-2"></i> Menu
+    </button>
+
+
+    <!-- ========================================================
+         SECTION: OVERVIEW (Dashboard Home)
+         ======================================================== -->
+    {% if section == 'overview' %}
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <div>
+        <h2 class="fw-800 mb-1">Dashboard Overview</h2>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening on your platform.</p>
+      </div>
+      <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add New Course
+      </a>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#eff6ff,#dbeafe)">
+            <i class="fas fa-users" style="color:#2563eb"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_students }}</div>
+            <div class="stat-card-label">Total Students</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)">
+            <i class="fas fa-book" style="color:#10b981"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_courses }}</div>
+            <div class="stat-card-label">Total Courses</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#fef2f2,#fee2e2)">
+            <i class="fas fa-video" style="color:#ef4444"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_videos }}</div>
+            <div class="stat-card-label">Total Videos</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">
+            <i class="fas fa-file-pdf" style="color:#f59e0b"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_notes }}</div>
+            <div class="stat-card-label">Total Notes</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe)">
+            <i class="fas fa-question-circle" style="color:#7c3aed"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_questions }}</div>
+            <div class="stat-card-label">Quiz Questions</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5)">
+            <i class="fas fa-chart-bar" style="color:#059669"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_results }}</div>
+            <div class="stat-card-label">Quizzes Attempted</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background:linear-gradient(135deg,#fdf4ff,#fae8ff)">
+            <i class="fas fa-comment-dots" style="color:#a21caf"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ total_feedback }}</div>
+            <div class="stat-card-label">Feedback Received</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Row -->
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-700 mb-0"><i class="fas fa-users text-primary me-2"></i> Recent Students</h5>
+              <a href="{{ url_for('admin_students') }}" class="small text-primary fw-600">View All</a>
+            </div>
+            {% if recent_students %}
+              {% for s in recent_students %}
+              <div class="d-flex align-items-center gap-3 mb-3 pb-3" style="border-bottom:1px solid #f1f5f9;">
+                <div style="width:42px;height:42px;background:var(--gradient-primary);border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">
+                  {{ s.name[0].upper() }}
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-600 small">{{ s.name }}</p>
+                  <small class="text-muted">{{ s.email }}</small>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted text-center py-3 mb-0">No students registered yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="fw-700 mb-0"><i class="fas fa-comment-dots text-warning me-2"></i> Recent Feedback</h5>
+              <a href="{{ url_for('admin_feedback') }}" class="small text-primary fw-600">View All</a>
+            </div>
+            {% if recent_feedback %}
+              {% for f in recent_feedback %}
+              <div class="mb-3 pb-3" style="border-bottom:1px solid #f1f5f9;">
+                <div class="d-flex justify-content-between">
+                  <p class="mb-1 fw-600 small">{{ f.student_name }}</p>
+                  <small class="text-muted">{{ f.date }}</small>
+                </div>
+                <p class="text-muted small mb-0">{{ f.message[:80] }}{% if f.message|length > 80 %}...{% endif %}</p>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted text-center py-3 mb-0">No feedback received yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: COURSES LIST
+         ======================================================== -->
+    {% if section == 'courses' %}
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <h2 class="fw-800 mb-0">Manage Courses</h2>
+      <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add New Course
+      </a>
+    </div>
+
+    <div class="row g-3">
+      {% if courses %}
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="course-card-img-placeholder">
+              <i class="fas fa-book-open"></i>
+            </div>
+            <div class="card-body p-3">
+              <h6 class="fw-700 mb-2">{{ course.course_name }}</h6>
+              <p class="text-muted small mb-3">{{ course.description[:90] }}...</p>
+              <div class="d-flex gap-2">
+                <a href="{{ url_for('admin_edit_course', course_id=course.id) }}"
+                   class="btn btn-sm btn-outline-primary flex-fill">
+                  <i class="fas fa-edit me-1"></i> Edit
+                </a>
+                <a href="{{ url_for('admin_delete_course', course_id=course.id) }}"
+                   class="btn btn-sm btn-outline-danger flex-fill"
+                   data-confirm="Delete '{{ course.course_name }}'? This will also delete all related videos, notes, and quizzes.">
+                  <i class="fas fa-trash me-1"></i> Delete
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-book"></i></div>
+            <h4>No Courses Yet</h4>
+            <p>Add your first course to get started.</p>
+            <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">Add Course</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: ADD COURSE
+         ======================================================== -->
+    {% if section == 'add_course' %}
+    <h2 class="fw-800 mb-4">Add New Course</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('admin_add_course') }}" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Course Name</label>
+              <input type="text" class="form-control" name="course_name" required
+                     placeholder="e.g. Mathematics - Class 9" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Course Image</label>
+              <input type="file" class="form-control" name="image" accept="image/*"
+                     data-preview="imagePreview" />
+              <img id="imagePreview" style="display:none;" alt="Preview" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" rows="4" required
+                        placeholder="Write a detailed course description..."></textarea>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i> Save Course
+              </button>
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: EDIT COURSE
+         ======================================================== -->
+    {% if section == 'edit_course' %}
+    <h2 class="fw-800 mb-4">Edit Course</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="POST"
+              action="{{ url_for('admin_edit_course', course_id=course.id) }}"
+              enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Course Name</label>
+              <input type="text" class="form-control" name="course_name" required
+                     value="{{ course.course_name }}" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Update Course Image (optional)</label>
+              <input type="file" class="form-control" name="image" accept="image/*"
+                     data-preview="imagePreview" />
+              <img id="imagePreview" style="display:none;" alt="Preview" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" rows="4" required>{{ course.description }}</textarea>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i> Update Course
+              </button>
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: VIDEOS LIST
+         ======================================================== -->
+    {% if section == 'videos' %}
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <h2 class="fw-800 mb-0">Manage Videos</h2>
+      <a href="{{ url_for('admin_add_video') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add New Video
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr><th>Title</th><th>Course</th><th>Link</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% if videos %}
+              {% for video in videos %}
+              <tr>
+                <td class="fw-600">{{ video.title }}</td>
+                <td><span class="badge-primary">{{ video.course_name }}</span></td>
+                <td>
+                  <a href="{{ video.youtube_link }}" target="_blank" class="text-primary small">
+                    <i class="fas fa-external-link-alt me-1"></i> Watch
+                  </a>
+                </td>
+                <td>
+                  <a href="{{ url_for('admin_delete_video', video_id=video.id) }}"
+                     class="btn btn-sm btn-outline-danger"
+                     data-confirm="Delete video '{{ video.title }}'?">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No videos added yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: ADD VIDEO
+         ======================================================== -->
+    {% if section == 'add_video' %}
+    <h2 class="fw-800 mb-4">Add New Video</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('admin_add_video') }}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Video Title</label>
+              <input type="text" class="form-control" name="title" required
+                     placeholder="e.g. Introduction to Algebra" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Course</label>
+              <select class="form-select" name="course_id" required>
+                <option value="" selected disabled>Select a course</option>
+                {% for c in courses %}
+                <option value="{{ c.id }}">{{ c.course_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">YouTube Link</label>
+              <input type="url" class="form-control" name="youtube_link" required
+                     placeholder="https://www.youtube.com/watch?v=..." />
+              <small class="text-muted">Paste any YouTube URL — it will be auto-converted to embed format.</small>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i> Save Video
+              </button>
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: NOTES LIST
+         ======================================================== -->
+    {% if section == 'notes' %}
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <h2 class="fw-800 mb-0">Manage Notes</h2>
+      <a href="{{ url_for('admin_add_note') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Upload New Note
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr><th>Title</th><th>Course</th><th>File</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% if notes %}
+              {% for note in notes %}
+              <tr>
+                <td class="fw-600">{{ note.title }}</td>
+                <td><span class="badge-primary">{{ note.course_name }}</span></td>
+                <td><i class="fas fa-file-pdf text-danger me-1"></i> {{ note.pdf_file }}</td>
+                <td>
+                  <a href="{{ url_for('admin_delete_note', note_id=note.id) }}"
+                     class="btn btn-sm btn-outline-danger"
+                     data-confirm="Delete note '{{ note.title }}'?">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No notes uploaded yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: ADD NOTE
+         ======================================================== -->
+    {% if section == 'add_note' %}
+    <h2 class="fw-800 mb-4">Upload New Note</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('admin_add_note') }}" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Note Title</label>
+              <input type="text" class="form-control" name="title" required
+                     placeholder="e.g. Number Systems - Chapter 1" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Course</label>
+              <select class="form-select" name="course_id" required>
+                <option value="" selected disabled>Select a course</option>
+                {% for c in courses %}
+                <option value="{{ c.id }}">{{ c.course_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">PDF File</label>
+              <input type="file" class="form-control" name="pdf_file" accept=".pdf" required />
+              <small class="text-muted">Only PDF files are allowed. Maximum size: 16 MB.</small>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-upload me-2"></i> Upload Note
+              </button>
+              <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: QUIZ QUESTIONS LIST
+         ======================================================== -->
+    {% if section == 'quiz' %}
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <h2 class="fw-800 mb-0">Manage Quiz Questions</h2>
+      <a href="{{ url_for('admin_add_quiz') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add New Question
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr><th>Question</th><th>Course</th><th>Correct Answer</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% if questions %}
+              {% for q in questions %}
+              <tr>
+                <td class="fw-600">{{ q.question[:60] }}{% if q.question|length > 60 %}...{% endif %}</td>
+                <td><span class="badge-primary">{{ q.course_name }}</span></td>
+                <td><span class="badge-success">{{ q.answer }}</span></td>
+                <td>
+                  <a href="{{ url_for('admin_delete_quiz', question_id=q.id) }}"
+                     class="btn btn-sm btn-outline-danger"
+                     data-confirm="Delete this quiz question?">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No quiz questions added yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: STUDENTS LIST
+         ======================================================== -->
+    {% if section == 'students' %}
+    <h2 class="fw-800 mb-4">Manage Students</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% if students %}
+              {% for s in students %}
+              <tr>
+                <td class="fw-600">
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:32px;height:32px;background:var(--gradient-primary);border-radius:50%;
+                                display:flex;align-items:center;justify-content:center;color:white;
+                                font-size:0.8rem;font-weight:700;flex-shrink:0;">
+                      {{ s.name[0].upper() }}
+                    </div>
+                    {{ s.name }}
+                  </div>
+                </td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.phone }}</td>
+                <td>
+                  <a href="{{ url_for('admin_delete_student', student_id=s.id) }}"
+                     class="btn btn-sm btn-outline-danger"
+                     data-confirm="Delete student '{{ s.name }}'? This will remove all their results and feedback.">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No students registered yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: RESULTS LIST
+         ======================================================== -->
+    {% if section == 'results' %}
+    <h2 class="fw-800 mb-4">All Quiz Results</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr><th>Student</th><th>Course</th><th>Score</th><th>Performance</th></tr>
+          </thead>
+          <tbody>
+            {% if results %}
+              {% for r in results %}
+              <tr>
+                <td class="fw-600">{{ r.student_name }}</td>
+                <td><span class="badge-primary">{{ r.course_name }}</span></td>
+                <td>{{ r.score }} / 5</td>
+                <td>
+                  {% if r.score >= 4 %}
+                    <span class="badge-success">Excellent</span>
+                  {% elif r.score >= 2 %}
+                    <span class="badge-primary">Good</span>
+                  {% else %}
+                    <span class="badge-danger">Needs Practice</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No quiz attempts yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ========================================================
+         SECTION: FEEDBACK LIST
+         ======================================================== -->
+    {% if section == 'feedback' %}
+    <h2 class="fw-800 mb-4">Student Feedback</h2>
+    <div class="row g-3">
+      {% if feedback %}
+        {% for f in feedback %}
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div style="width:42px;height:42px;background:var(--gradient-primary);border-radius:50%;
+                            display:flex;align-items:center;justify-content:center;color:white;
+                            font-weight:700;flex-shrink:0;">
+                  {{ f.student_name[0].upper() }}
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-700">{{ f.student_name }}</p>
+                  <small class="text-muted">{{ f.date }}</small>
+                </div>
+              </div>
+              <p class="text-muted mb-0">{{ f.message }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-comment-dots"></i></div>
+            <h4>No Feedback Yet</h4>
+            <p>Student feedback will appear here once submitted.</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div><!-- /.admin-content -->
+</div><!-- /.admin-layout -->
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Sync sidebar overlay visibility with sidebar toggle
+  document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggle  = document.getElementById('sidebarToggle');
+
+    if (toggle && overlay) {
+      toggle.addEventListener('click', function () {
+        overlay.style.display = sidebar.classList.contains('show') ? 'block' : 'none';
+      });
+    }
+    if (overlay) {
+      overlay.addEventListener('click', function () {
+        sidebar.classList.remove('show');
+        overlay.style.display = 'none';
+      });
+    }
+  });
+</script>
+{% endblock %}

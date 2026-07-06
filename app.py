@@ -68,10 +68,13 @@ def admin_login_required(f):
 @app.route('/')
 def index():
     """Home page — shows featured courses and platform info."""
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM courses LIMIT 6")
-    courses = cur.fetchall()
-    cur.close()
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM courses LIMIT 6")
+        courses = cur.fetchall()
+        cur.close()
+    except Exception:
+        courses = []
     return render_template('index.html', courses=courses)
 
 
@@ -306,10 +309,13 @@ def profile():
 @app.route('/courses')
 def courses():
     """Courses listing page — viewable by all."""
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM courses ORDER BY id DESC")
-    all_courses = cur.fetchall()
-    cur.close()
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM courses ORDER BY id DESC")
+        all_courses = cur.fetchall()
+        cur.close()
+    except Exception:
+        all_courses = []
     return render_template('courses.html', courses=all_courses)
 
 
@@ -1011,7 +1017,7 @@ def admin_manage(section):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('index.html'), 404
+    return render_template('index.html', courses=[]), 404
 
 
 @app.errorhandler(413)
@@ -1022,8 +1028,7 @@ def file_too_large(e):
 
 @app.errorhandler(500)
 def internal_error(e):
-    flash('An internal server error occurred. Please try again.', 'danger')
-    return redirect(url_for('index'))
+    return render_template('index.html', courses=[]), 500
 
 
 # ============================================================

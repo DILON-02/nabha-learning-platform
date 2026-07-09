@@ -179,6 +179,7 @@ This project is developed for educational purposes as a college major project.
 Feel free to use, modify, and distribute with attribution.
 
 ---
+Live link : https://nabha-learning-platform-qult.onrender.com
 
 ## 🙏 Acknowledgements
 
@@ -189,5 +190,6 @@ Feel free to use, modify, and distribute with attribution.
 - **Google Fonts** — Inter typeface
 
 ---
+
 
 > _Built with ❤️ to empower rural students in Nabha, Punjab, India._

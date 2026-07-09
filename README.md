@@ -98,129 +98,6 @@ Digital-Learning-Platform/
 
 ---
 
-## ⚙️ Installation & Setup
-
-### Prerequisites
-- Python 3.8 or higher
-- MySQL 8.0 or higher
-- pip (Python package manager)
-- Git
-
----
-
-### Step 1 — Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/Digital-Learning-Platform.git
-cd Digital-Learning-Platform
-```
-
----
-
-### Step 2 — Create Virtual Environment
-
-```bash
-# Create virtual environment
-python -m venv venv
-
-# Activate on Windows
-venv\Scripts\activate
-
-# Activate on macOS / Linux
-source venv/bin/activate
-```
-
----
-
-### Step 3 — Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### Step 4 — Set Up MySQL Database
-
-```bash
-# Open MySQL
-mysql -u root -p
-
-# Import the database
-source /path/to/Digital-Learning-Platform/database/learning.sql
-```
-
-Or import directly from terminal:
-
-```bash
-mysql -u root -p < database/learning.sql
-```
-
----
-
-### Step 5 — Set Up Admin Password
-
-After importing the database, set a proper hashed admin password:
-
-```bash
-# Generate hash
-python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('admin123'))"
-```
-
-Copy the output hash, then run in MySQL:
-
-```sql
-USE learning_platform;
-UPDATE admin SET password='<paste_hash_here>' WHERE username='admin';
-```
-
----
-
-### Step 6 — Configure Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-SECRET_KEY=your_very_strong_secret_key_here
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=your_mysql_password
-MYSQL_DB=learning_platform
-```
-
----
-
-### Step 7 — Create Upload Folders
-
-```bash
-mkdir -p static/images/uploads/notes
-mkdir -p static/images/uploads/course_images
-```
-
----
-
-### Step 8 — Run the Application
-
-```bash
-python app.py
-```
-
-Open your browser at: **http://localhost:5000**
-
----
-
-## 🔑 Default Login Credentials
-
-### Admin Login
-- **URL:** http://localhost:5000/admin/login
-- **Username:** `admin`
-- **Password:** `admin123` (after Step 5 above)
-
-### Student Login
-Register at: http://localhost:5000/register
-
----
-
 ## 🗄️ Database Schema
 
 | Table | Description |
@@ -233,55 +110,6 @@ Register at: http://localhost:5000/register
 | `quiz_questions` | MCQ questions with options and answer |
 | `results` | Student quiz scores |
 | `feedback` | Student feedback messages |
-
----
-
-## 📸 Screenshots
-
-> _Add screenshots of the following pages after setup:_
-
-| Page | Screenshot |
-|---|---|
-| Home Page | `screenshots/home.png` |
-| Student Dashboard | `screenshots/student_dashboard.png` |
-| Admin Dashboard | `screenshots/admin_dashboard.png` |
-| Courses Page | `screenshots/courses.png` |
-| Quiz Page | `screenshots/quiz.png` |
-| Result Page | `screenshots/result.png` |
-
----
-
-## 🚀 Deployment on Render
-
-### Step 1 — Push to GitHub
-```bash
-git init
-git add .
-git commit -m "Initial commit — Digital Learning Platform Nabha"
-git remote add origin https://github.com/yourusername/Digital-Learning-Platform.git
-git push -u origin main
-```
-
-### Step 2 — Create Web Service on Render
-1. Go to [https://render.com](https://render.com) and sign up
-2. Click **New → Web Service**
-3. Connect your GitHub repository
-4. Set **Build Command:** `pip install -r requirements.txt`
-5. Set **Start Command:** `gunicorn app:app`
-
-### Step 3 — Add Environment Variables on Render
-In Render dashboard → Environment → Add:
-```
-SECRET_KEY        = your_secret_key
-MYSQL_HOST        = your_render_mysql_host
-MYSQL_USER        = your_db_user
-MYSQL_PASSWORD    = your_db_password
-MYSQL_DB          = learning_platform
-```
-
-### Step 4 — Add MySQL Database on Render
-1. Click **New → PostgreSQL** (or use external MySQL provider like **PlanetScale** or **Railway**)
-2. Connect credentials to environment variables above
 
 ---
 
@@ -338,11 +166,10 @@ MYSQL_DB          = learning_platform
 ## 👨‍💻 Author
 
 **Project:** Digital Learning Platform for Rural School Students — Nabha
-**Developed By:** [Your Name]
-**College:** [Your College Name]
-**Department:** [Your Department]
-**Year:** Third Year B.E. — Major Project
-**Session:** 2024–2025
+**Developed By:** Dilon P G
+**College:** V.S.B engineering college
+**Department:** CSE(AI&ML)
+**Year:** Third Year B.E. 
 
 ---
 

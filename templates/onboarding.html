@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome Onboarding — Digital Learning Platform Nabha{% endblock %}
+
+{% block content %}
+
+<div style="padding-top: 70px;"></div>
+
+<section style="min-height: calc(100vh - 70px);
+                display: flex; align-items: center;
+                padding: 3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 col-sm-11">
+
+        <!-- Step Indicator -->
+        <div class="text-center mb-4 animate-fade-up">
+
+          <!-- Step Pills -->
+          <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+
+            <!-- Step 1 — Active -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:var(--gradient-primary);
+                        display:flex;align-items:center;justify-content:center;
+                        color:white;font-weight:700;font-size:0.9rem;
+                        box-shadow:0 0 15px rgba(37,99,235,0.5);">
+              1
+            </div>
+
+            <!-- Connector -->
+            <div style="width:60px;height:3px;
+                        background:rgba(255,255,255,0.15);
+                        border-radius:2px;">
+            </div>
+
+            <!-- Step 2 — Inactive -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:rgba(255,255,255,0.1);
+                        border:2px solid rgba(255,255,255,0.2);
+                        display:flex;align-items:center;justify-content:center;
+                        color:rgba(255,255,255,0.4);font-weight:700;font-size:0.9rem;">
+              2
+            </div>
+
+            <!-- Connector -->
+            <div style="width:60px;height:3px;
+                        background:rgba(255,255,255,0.15);
+                        border-radius:2px;">
+            </div>
+
+            <!-- Step 3 — Inactive -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:rgba(255,255,255,0.1);
+                        border:2px solid rgba(255,255,255,0.2);
+                        display:flex;align-items:center;justify-content:center;
+                        color:rgba(255,255,255,0.4);font-weight:700;font-size:0.9rem;">
+              3
+            </div>
+
+          </div>
+
+          <!-- Step Labels -->
+          <div class="d-flex justify-content-center gap-2">
+            <small style="color:white;font-weight:600;font-size:0.75rem;width:38px;text-align:center;">
+              About You
+            </small>
+            <div style="width:60px;"></div>
+            <small style="color:rgba(255,255,255,0.35);font-size:0.75rem;width:38px;text-align:center;">
+              Quiz
+            </small>
+            <div style="width:60px;"></div>
+            <small style="color:rgba(255,255,255,0.35);font-size:0.75rem;width:38px;text-align:center;">
+              Roadmap
+            </small>
+          </div>
+
+        </div>
+        <!-- End Step Indicator -->
+
+        <!-- Onboarding Card -->
+        <div class="form-wrapper animate-fade-up">
+
+          <!-- Card Header -->
+          <div class="form-header text-center">
+            <div class="mx-auto mb-3"
+                 style="width:65px;height:65px;
+                        background:rgba(255,255,255,0.15);
+                        border-radius:50%;
+                        display:flex;align-items:center;
+                        justify-content:center;font-size:1.8rem;">
+              👋
+            </div>
+            <h2 class="fw-800 mb-1">Welcome, {{ session.student_name.split()[0] }}!</h2>
+            <p class="mb-0" style="opacity:0.8;">
+              Step 1 of 3 — Tell us about yourself so we can
+              create your personalized learning path.
+            </p>
+          </div>
+
+          <!-- Card Body -->
+          <div class="form-body">
+            <form method="POST"
+                  action="{{ url_for('onboarding') }}"
+                  id="onboardingForm"
+                  novalidate>
+
+              <!-- Class Selection -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="fas fa-school me-1 text-primary"></i>
+                  Which class are you studying in?
+                </label>
+                <div class="row g-2">
+                  {% for cls in ['Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12'] %}
+                  <div class="col-3">
+                    <input type="radio"
+                           class="btn-check"
+                           name="class_name"
+                           id="cls_{{ loop.index }}"
+                           value="{{ cls }}"
+                           required />
+                    <label class="btn w-100 py-2"
+                           for="cls_{{ loop.index }}"
+                           style="background:rgba(255,255,255,0.06);
+                                  border:1px solid rgba(255,255,255,0.15);
+                                  color:rgba(255,255,255,0.8);
+                                  border-radius:10px;
+                                  font-size:0.85rem;
+                                  transition:all 0.2s;">
+                      {{ cls.replace('Class ','') }}
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div id="classError"
+                     class="text-warning small mt-2"
+                     style="display:none;">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  Please select your class.
+                </div>
+              </div>
+
+              <!-- Language Selection -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="fas fa-language me-1 text-primary"></i>
+                  Preferred Language
+                </label>
+                <div class="row g-2">
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="language"
+                           id="lang_english"
+                           value="English"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="lang_english"
+                           style="background:rgba(255,255,255,0.06);
+                                  border:1px solid rgba(255,255,255,0.15);
+                                  color:rgba(255,255,255,0.8);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      <i class="fas fa-globe me-2"></i> English
+                    </label>
+                  </div>
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="language"
+                           id="lang_hindi"
+                           value="Hindi"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="lang_hindi"
+                           style="background:rgba(255,255,255,0.06);
+                                  border:1px solid rgba(255,255,255,0.15);
+                                  color:rgba(255,255,255,0.8);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      🇮🇳 हिंदी
+                    </label>
+                  </div>
+
+                </div>
+                <div id="langError"
+                     class="text-warning small mt-2"
+                     style="display:none;">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  Please select your preferred language.
+                </div>
+              </div>
+
+              <!-- Subject Selection -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="fas fa-book me-1 text-primary"></i>
+                  Which subject do you find most difficult?
+                </label>
+                <div class="row g-2">
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="weak_subject"
+                           id="subj_maths"
+                           value="Mathematics"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="subj_maths"
+                           style="background:rgba(37,99,235,0.1);
+                                  border:1px solid rgba(37,99,235,0.3);
+                                  color:rgba(255,255,255,0.85);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      🔢 Mathematics
+                    </label>
+                  </div>
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="weak_subject"
+                           id="subj_science"
+                           value="Science"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="subj_science"
+                           style="background:rgba(16,185,129,0.1);
+                                  border:1px solid rgba(16,185,129,0.3);
+                                  color:rgba(255,255,255,0.85);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      🔬 Science
+                    </label>
+                  </div>
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="weak_subject"
+                           id="subj_english"
+                           value="English"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="subj_english"
+                           style="background:rgba(245,158,11,0.1);
+                                  border:1px solid rgba(245,158,11,0.3);
+                                  color:rgba(255,255,255,0.85);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      📖 English
+                    </label>
+                  </div>
+
+                  <div class="col-6">
+                    <input type="radio"
+                           class="btn-check"
+                           name="weak_subject"
+                           id="subj_social"
+                           value="Social Science"
+                           required />
+                    <label class="btn w-100 py-3"
+                           for="subj_social"
+                           style="background:rgba(124,58,237,0.1);
+                                  border:1px solid rgba(124,58,237,0.3);
+                                  color:rgba(255,255,255,0.85);
+                                  border-radius:12px;
+                                  transition:all 0.2s;">
+                      🌍 Social Science
+                    </label>
+                  </div>
+
+                </div>
+                <div id="subjectError"
+                     class="text-warning small mt-2"
+                     style="display:none;">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  Please select your most difficult subject.
+                </div>
+              </div>
+
+              <!-- Info Note -->
+              <div class="mb-4 p-3"
+                   style="background:rgba(37,99,235,0.1);
+                          border:1px solid rgba(37,99,235,0.25);
+                          border-radius:12px;">
+                <p class="mb-0 small" style="color:rgba(255,255,255,0.75);">
+                  <i class="fas fa-info-circle me-2 text-primary"></i>
+                  After this, you will take a short <strong style="color:white;">diagnostic quiz</strong>
+                  (8 questions) to detect your current level.
+                  This helps us build your personalized learning roadmap.
+                </p>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary w-100 btn-lg">
+                <i class="fas fa-arrow-right me-2"></i>
+                Continue to Assessment Quiz
+              </button>
+
+            </form>
+          </div>
+          <!-- End Card Body -->
+
+        </div>
+        <!-- End Onboarding Card -->
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Highlight selected btn-check labels */
+  document.querySelectorAll('.btn-check').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      /* Remove active style from siblings in same group */
+      document.querySelectorAll(
+        'input[name="' + this.name + '"]'
+      ).forEach(function (r) {
+        var lbl = document.querySelector('label[for="' + r.id + '"]');
+        if (lbl) {
+          lbl.style.background  = getDefaultBg(r.name, r.value);
+          lbl.style.borderColor = getDefaultBorder(r.name, r.value);
+          lbl.style.color       = 'rgba(255,255,255,0.8)';
+          lbl.style.transform   = '';
+        }
+      });
+
+      /* Apply active style to selected */
+      var selectedLbl = document.querySelector('label[for="' + this.id + '"]');
+      if (selectedLbl) {
+        selectedLbl.style.background  = 'var(--gradient-primary)';
+        selectedLbl.style.borderColor = 'rgba(99,102,241,0.8)';
+        selectedLbl.style.color       = 'white';
+        selectedLbl.style.transform   = 'scale(1.03)';
+        selectedLbl.style.boxShadow   = '0 0 20px rgba(37,99,235,0.4)';
+      }
+
+      /* Hide error for this group */
+      var errorMap = {
+        class_name:   'classError',
+        language:     'langError',
+        weak_subject: 'subjectError'
+      };
+      var errEl = document.getElementById(errorMap[this.name]);
+      if (errEl) errEl.style.display = 'none';
+    });
+  });
+
+  function getDefaultBg(name, value) {
+    if (name === 'weak_subject') {
+      var map = {
+        'Mathematics':   'rgba(37,99,235,0.1)',
+        'Science':       'rgba(16,185,129,0.1)',
+        'English':       'rgba(245,158,11,0.1)',
+        'Social Science':'rgba(124,58,237,0.1)'
+      };
+      return map[value] || 'rgba(255,255,255,0.06)';
+    }
+    return 'rgba(255,255,255,0.06)';
+  }
+
+  function getDefaultBorder(name, value) {
+    if (name === 'weak_subject') {
+      var map = {
+        'Mathematics':   'rgba(37,99,235,0.3)',
+        'Science':       'rgba(16,185,129,0.3)',
+        'English':       'rgba(245,158,11,0.3)',
+        'Social Science':'rgba(124,58,237,0.3)'
+      };
+      return map[value] || 'rgba(255,255,255,0.15)';
+    }
+    return 'rgba(255,255,255,0.15)';
+  }
+
+  /* Form validation before submit */
+  document.getElementById('onboardingForm').addEventListener('submit', function (e) {
+    var valid = true;
+
+    if (!document.querySelector('input[name="class_name"]:checked')) {
+      document.getElementById('classError').style.display = 'block';
+      valid = false;
+    }
+    if (!document.querySelector('input[name="language"]:checked')) {
+      document.getElementById('langError').style.display = 'block';
+      valid = false;
+    }
+    if (!document.querySelector('input[name="weak_subject"]:checked')) {
+      document.getElementById('subjectError').style.display = 'block';
+      valid = false;
+    }
+
+    if (!valid) {
+      e.preventDefault();
+      /* Scroll to first error */
+      var firstError = document.querySelector('[id$="Error"]:not([style*="none"])');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    /* Show loading on button */
+    var btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Setting up your path...';
+  });
+
+});
+</script>
+{% endblock %}

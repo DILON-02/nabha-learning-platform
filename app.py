@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from flask import (Flask, render_template, request, redirect,
-                   url_for, session, flash, send_from_directory)
+                   url_for, session, flash, send_from_directory, jsonify)
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -27,6 +27,110 @@ app.config["MYSQL_PORT"] = int(os.environ.get("MYSQL_PORT", 3306))
 # MySQL Initialization
 # ===========================
 mysql = MySQL(app)
+
+# ============================================================
+# SMART LEARNING PATH HELPERS
+# ============================================================
+
+ROADMAP_TOPICS = {
+    'Mathematics': [
+        'Basic Numbers and Counting',
+        'Addition and Subtraction',
+        'Multiplication and Division',
+        'Fractions and Decimals',
+        'Percentages and Ratios',
+        'Basic Algebra',
+        'Geometry Basics',
+        'Linear Equations',
+        'Polynomials',
+        'Statistics and Probability'
+    ],
+    'Science': [
+        'Basic Matter and Materials',
+        'Living Things and Plants',
+        'Animals and Human Body',
+        'Force and Motion',
+        'Light and Sound',
+        'Electricity and Magnetism',
+        'Atoms and Molecules',
+        'Chemical Reactions',
+        'Cell Biology',
+        'Ecology and Environment'
+    ],
+    'English': [
+        'Alphabet and Phonics',
+        'Basic Vocabulary',
+        'Nouns and Pronouns',
+        'Verbs and Tenses',
+        'Articles and Prepositions',
+        'Sentence Formation',
+        'Reading Comprehension',
+        'Writing Skills',
+        'Grammar Advanced',
+        'Essay and Composition'
+    ],
+    'Social Science': [
+        'My Family and Community',
+        'Our Country India',
+        'Indian History Basics',
+        'Geography of India',
+        'Rivers and Mountains',
+        'Ancient Civilizations',
+        'Freedom Struggle',
+        'Constitution and Government',
+        'Economics Basics',
+        'World History and Geography'
+    ]
+}
+
+LEVEL_START = {
+    'Beginner':     0,
+    'Intermediate': 3,
+    'Advanced':     6
+}
+
+def detect_level(score, total):
+    if total == 0:
+        return 'Beginner'
+    percentage = (score / total) * 100
+    if percentage <= 40:
+        return 'Beginner'
+    elif percentage <= 75:
+        return 'Intermediate'
+    else:
+        return 'Advanced'
+
+def generate_roadmap(student_id, subject, level, cur):
+    cur.execute("DELETE FROM learning_path WHERE student_id = %s", (student_id,))
+    topics      = ROADMAP_TOPICS.get(subject, ROADMAP_TOPICS['Mathematics'])
+    start_index = LEVEL_START.get(level, 0)
+    selected    = topics[start_index:]
+    for order, topic in enumerate(selected):
+        status = 'unlocked' if order == 0 else 'locked'
+        cur.execute(
+            "INSERT INTO learning_path (student_id, subject, topic, topic_order, status) VALUES (%s,%s,%s,%s,%s)",
+            (student_id, subject, topic, order, status)
+        )
+
+def get_student_profile(student_id, cur):
+    cur.execute("SELECT * FROM student_profile WHERE student_id = %s", (student_id,))
+    return cur.fetchone()
+
+def get_learning_path(student_id, cur):
+    cur.execute("SELECT * FROM learning_path WHERE student_id = %s ORDER BY topic_order ASC", (student_id,))
+    return cur.fetchall()
+
+def calculate_progress(path):
+    if not path:
+        return 0
+    completed = sum(1 for t in path if t['status'] == 'completed')
+    return round((completed / len(path)) * 100)
+
+def get_current_topic(path):
+    for topic in path:
+        if topic['status'] in ('unlocked', 'in_progress'):
+            return topic
+    return None
 
 # ===========================
 # Ensure Upload Folders Exist
@@ -147,19 +251,19 @@ def login():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM students WHERE email = %s", (email,))
         student = cur.fetchone()
-        cur.close()
-
         if student and check_password_hash(student['password'], password):
             session['student_id']   = student['id']
             session['student_name'] = student['name']
+            profile = get_student_profile(student['id'], cur)
+            cur.close()
             flash(f"Welcome back, {student['name']}!", 'success')
+            if not profile or not profile['onboarded']:
+                return redirect(url_for('onboarding'))
             return redirect(url_for('student_dashboard'))
-        else:
-            flash('Invalid email or password.', 'danger')
-            return redirect(url_for('login'))
-
+        cur.close()
+        flash('Invalid email or password.', 'danger')
+        return redirect(url_for('login'))
     return render_template('login.html')
-
 
 @app.route('/logout')
 def logout():
@@ -1010,6 +1114,187 @@ def admin_manage(section):
     cur.close()
     return render_template('admin_dashboard.html', section=section, **data)
 
+# ============================================================
+# SMART LEARNING PATH - ONBOARDING
+# ============================================================
+
+@app.route('/onboarding', methods=['GET', 'POST'])
+@student_login_required
+def onboarding():
+    student_id = session['student_id']
+    cur = mysql.connection.cursor()
+    profile = get_student_profile(student_id, cur)
+    cur.close()
+    if profile and profile['onboarded']:
+        return redirect(url_for('student_dashboard'))
+    if request.method == 'POST':
+        class_name   = request.form.get('class_name', '').strip()
+        language     = request.form.get('language', 'English').strip()
+        weak_subject = request.form.get('weak_subject', '').strip()
+        if not all([class_name, language, weak_subject]):
+            flash('Please fill all fields.', 'danger')
+            return redirect(url_for('onboarding'))
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id FROM student_profile WHERE student_id = %s", (student_id,))
+        if cur.fetchone():
+            cur.execute(
+                "UPDATE student_profile SET class_name=%s, language=%s, weak_subject=%s, onboarded=0 WHERE student_id=%s",
+                (class_name, language, weak_subject, student_id)
+            )
+        else:
+            cur.execute(
+                "INSERT INTO student_profile (student_id, class_name, language, weak_subject, onboarded) VALUES (%s,%s,%s,%s,0)",
+                (student_id, class_name, language, weak_subject)
+            )
+        mysql.connection.commit()
+        cur.close()
+        session['onboarding_class']    = class_name
+        session['onboarding_subject']  = weak_subject
+        session['onboarding_language'] = language
+        return redirect(url_for('assessment'))
+    return render_template('onboarding.html')
+
+
+# ============================================================
+# SMART LEARNING PATH - ASSESSMENT
+# ============================================================
+
+@app.route('/assessment', methods=['GET', 'POST'])
+@student_login_required
+def assessment():
+    student_id   = session['student_id']
+    class_name   = session.get('onboarding_class', 'Class 9')
+    weak_subject = session.get('onboarding_subject', 'Mathematics')
+    cur = mysql.connection.cursor()
+    cur.execute(
+        "SELECT * FROM assessment_questions WHERE class_name=%s AND subject=%s LIMIT 8",
+        (class_name, weak_subject)
+    )
+    questions = cur.fetchall()
+    if not questions:
+        cur.execute(
+            "UPDATE student_profile SET level='Intermediate', assessment_score=5, onboarded=1 WHERE student_id=%s",
+            (student_id,)
+        )
+        generate_roadmap(student_id, weak_subject, 'Intermediate', cur)
+        mysql.connection.commit()
+        cur.close()
+        session.pop('onboarding_class',    None)
+        session.pop('onboarding_subject',  None)
+        session.pop('onboarding_language', None)
+        flash('Welcome! Your learning path is ready.', 'success')
+        return redirect(url_for('learning_path'))
+    if request.method == 'POST':
+        score = 0
+        total = len(questions)
+        for question in questions:
+            q_id = str(question['id'])
+            if request.form.get(f'q_{q_id}', '').strip() == question['answer'].strip():
+                score += 1
+        level = detect_level(score, total)
+        cur.execute(
+            "UPDATE student_profile SET level=%s, assessment_score=%s, onboarded=1 WHERE student_id=%s",
+            (level, score, student_id)
+        )
+        generate_roadmap(student_id, weak_subject, level, cur)
+        mysql.connection.commit()
+        cur.close()
+        session.pop('onboarding_class',    None)
+        session.pop('onboarding_subject',  None)
+        session.pop('onboarding_language', None)
+        flash(f'Assessment complete! You are at {level} level. Your learning path is ready!', 'success')
+        return redirect(url_for('learning_path'))
+    cur.close()
+    return render_template('assessment.html', questions=questions, subject=weak_subject, class_name=class_name)
+
+
+# ============================================================
+# SMART LEARNING PATH - ROADMAP
+# ============================================================
+
+@app.route('/learning-path')
+@student_login_required
+def learning_path():
+    student_id = session['student_id']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM students WHERE id = %s", (student_id,))
+    student = cur.fetchone()
+    profile = get_student_profile(student_id, cur)
+    if not profile or not profile['onboarded']:
+        cur.close()
+        return redirect(url_for('onboarding'))
+    path          = get_learning_path(student_id, cur)
+    cur.close()
+    progress      = calculate_progress(path)
+    current_topic = get_current_topic(path)
+    completed     = [t for t in path if t['status'] == 'completed']
+    return render_template('learning_path.html',
+                           student=student,
+                           profile=profile,
+                           path=path,
+                           progress=progress,
+                           current_topic=current_topic,
+                           completed_count=len(completed),
+                           total_topics=len(path))
+
+
+# ============================================================
+# SMART LEARNING PATH - COMPLETE TOPIC
+# ============================================================
+
+@app.route('/learning-path/complete/<int:topic_id>', methods=['POST'])
+@student_login_required
+def complete_topic(topic_id):
+    student_id = session['student_id']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM learning_path WHERE id=%s AND student_id=%s", (topic_id, student_id))
+    topic = cur.fetchone()
+    if not topic:
+        cur.close()
+        return jsonify({'success': False, 'message': 'Topic not found'}), 404
+    if topic['status'] == 'completed':
+        cur.close()
+        return jsonify({'success': True, 'message': 'Already completed'})
+    cur.execute(
+        "UPDATE learning_path SET status='completed', completed_at=%s WHERE id=%s AND student_id=%s",
+        (datetime.now(), topic_id, student_id)
+    )
+    next_order = topic['topic_order'] + 1
+    cur.execute(
+        "UPDATE learning_path SET status='unlocked' WHERE student_id=%s AND topic_order=%s AND status='locked'",
+        (student_id, next_order)
+    )
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True, 'message': 'Topic completed! Next topic unlocked.'})
+
+
+# ============================================================
+# ADMIN - LEARNING PATHS VIEW
+# ============================================================
+
+@app.route('/admin/learning-paths')
+@admin_login_required
+def admin_learning_paths():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT s.id AS student_id, s.name AS student_name, s.email,
+               sp.class_name, sp.weak_subject, sp.level,
+               sp.assessment_score, sp.language,
+               COUNT(lp.id) AS total_topics,
+               SUM(CASE WHEN lp.status='completed' THEN 1 ELSE 0 END) AS completed_topics
+        FROM students s
+        LEFT JOIN student_profile sp ON s.id = sp.student_id
+        LEFT JOIN learning_path lp   ON s.id = lp.student_id
+        WHERE sp.onboarded = 1
+        GROUP BY s.id, s.name, s.email, sp.class_name,
+                 sp.weak_subject, sp.level, sp.assessment_score, sp.language
+        ORDER BY s.id DESC
+    """)
+    learning_data = cur.fetchall()
+    cur.close()
+    return render_template('admin_dashboard.html',
+                           section='learning_paths', learning_data=learning_data)
 
 # ============================================================
 # ERROR HANDLERS

@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment Quiz — Digital Learning Platform Nabha{% endblock %}
+
+{% block content %}
+
+<div style="padding-top: 70px;"></div>
+
+<section style="min-height: calc(100vh - 70px);
+                display: flex; align-items: center;
+                padding: 3rem 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9 col-sm-11">
+
+        <!-- Step Indicator -->
+        <div class="text-center mb-4 animate-fade-up">
+          <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+
+            <!-- Step 1 — Done -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:rgba(16,185,129,0.3);
+                        border:2px solid rgba(16,185,129,0.6);
+                        display:flex;align-items:center;justify-content:center;
+                        color:#6ee7b7;font-size:1rem;">
+              <i class="fas fa-check"></i>
+            </div>
+
+            <div style="width:60px;height:3px;
+                        background:rgba(16,185,129,0.4);
+                        border-radius:2px;"></div>
+
+            <!-- Step 2 — Active -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:var(--gradient-primary);
+                        display:flex;align-items:center;justify-content:center;
+                        color:white;font-weight:700;font-size:0.9rem;
+                        box-shadow:0 0 15px rgba(37,99,235,0.5);">
+              2
+            </div>
+
+            <div style="width:60px;height:3px;
+                        background:rgba(255,255,255,0.15);
+                        border-radius:2px;"></div>
+
+            <!-- Step 3 — Inactive -->
+            <div style="width:38px;height:38px;border-radius:50%;
+                        background:rgba(255,255,255,0.1);
+                        border:2px solid rgba(255,255,255,0.2);
+                        display:flex;align-items:center;justify-content:center;
+                        color:rgba(255,255,255,0.4);font-weight:700;font-size:0.9rem;">
+              3
+            </div>
+
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <small style="color:rgba(255,255,255,0.4);font-size:0.75rem;width:38px;text-align:center;">
+              About You
+            </small>
+            <div style="width:60px;"></div>
+            <small style="color:white;font-weight:600;font-size:0.75rem;width:38px;text-align:center;">
+              Quiz
+            </small>
+            <div style="width:60px;"></div>
+            <small style="color:rgba(255,255,255,0.35);font-size:0.75rem;width:38px;text-align:center;">
+              Roadmap
+            </small>
+          </div>
+        </div>
+        <!-- End Step Indicator -->
+
+        <!-- Quiz Header Card -->
+        <div class="quiz-header mb-4 animate-fade-up">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <div class="text-start">
+              <h2 class="mb-1">
+                <i class="fas fa-brain me-2"></i>
+                {{ subject }} Assessment
+              </h2>
+              <p class="mb-0 opacity-75 small">
+                {{ class_name }} — Answer all {{ questions|length }} questions honestly.
+                This helps us understand your current level.
+              </p>
+            </div>
+            <!-- Timer -->
+            <div style="background:rgba(255,255,255,0.15);
+                        padding:0.5rem 1.25rem;
+                        border-radius:12px;
+                        border:1px solid rgba(255,255,255,0.2);">
+              <i class="fas fa-clock me-1"></i>
+              <span id="assessTimer"
+                    style="font-size:1.2rem;font-weight:800;font-family:monospace;">
+                {{ '%02d' % (questions|length) }}:00
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="quiz-progress mt-3">
+            <div id="assessProgressBar"
+                 class="quiz-progress-bar"
+                 style="width:0%;"
+                 role="progressbar"
+                 aria-valuenow="0"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+          </div>
+          <p id="assessProgressText"
+             class="text-white-50 small mt-2 mb-0">
+            0 of {{ questions|length }} answered
+          </p>
+        </div>
+
+        <!-- Assessment Form -->
+        <form method="POST"
+              action="{{ url_for('assessment') }}"
+              id="assessmentForm">
+
+          {% for question in questions %}
+          <div class="question-card animate-fade-up"
+               style="animation-delay: {{ loop.index0 * 0.08 }}s;">
+
+            <!-- Question Number -->
+            <span class="question-number">{{ loop.index }}</span>
+
+            <!-- Question Text -->
+            <p class="question-text">{{ question.question }}</p>
+
+            <!-- Options -->
+            <div class="quiz-options-group">
+
+              <label class="quiz-option" data-option="1">
+                <input type="radio"
+                       name="q_{{ question.id }}"
+                       value="{{ question.option1 }}" />
+                <i class="fas fa-circle me-2 small"></i>
+                {{ question.option1 }}
+              </label>
+
+              <label class="quiz-option" data-option="2">
+                <input type="radio"
+                       name="q_{{ question.id }}"
+                       value="{{ question.option2 }}" />
+                <i class="fas fa-circle me-2 small"></i>
+                {{ question.option2 }}
+              </label>
+
+              <label class="quiz-option" data-option="3">
+                <input type="radio"
+                       name="q_{{ question.id }}"
+                       value="{{ question.option3 }}" />
+                <i class="fas fa-circle me-2 small"></i>
+                {{ question.option3 }}
+              </label>
+
+              <label class="quiz-option" data-option="4">
+                <input type="radio"
+                       name="q_{{ question.id }}"
+                       value="{{ question.option4 }}" />
+                <i class="fas fa-circle me-2 small"></i>
+                {{ question.option4 }}
+              </label>
+
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Submit Area -->
+          <div id="assessSubmitArea"
+               class="text-center mt-4 mb-5"
+               style="background:rgba(255,255,255,0.05);
+                      border:1px solid rgba(255,255,255,0.1);
+                      border-radius:16px;
+                      padding:2rem;">
+            <p class="mb-3 small" style="color:rgba(255,255,255,0.65);">
+              <i class="fas fa-info-circle me-1"></i>
+              Answer all questions. We will detect your level automatically
+              and build your personalized roadmap.
+            </p>
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-paper-plane me-2"></i>
+              Submit Assessment
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Time Up Modal -->
+<div class="modal fade" id="timeUpModal" tabindex="-1"
+     aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0"
+         style="background:rgba(15,12,41,0.97);
+                backdrop-filter:blur(20px);
+                border:1px solid rgba(255,255,255,0.1) !important;
+                border-radius:16px;">
+      <div class="modal-body text-center p-4">
+        <div class="mx-auto mb-3"
+             style="width:60px;height:60px;
+                    background:rgba(239,68,68,0.2);
+                    border:1px solid rgba(239,68,68,0.4);
+                    border-radius:50%;
+                    display:flex;align-items:center;
+                    justify-content:center;color:#fca5a5;font-size:1.5rem;">
+          <i class="fas fa-clock"></i>
+        </div>
+        <h5 class="fw-700 mb-2 text-white">Time's Up!</h5>
+        <p class="mb-3" style="color:rgba(255,255,255,0.65);">
+          Your assessment time has ended. Your answers will be submitted now.
+        </p>
+        <button type="button"
+                class="btn btn-primary w-100"
+                onclick="document.getElementById('assessmentForm').submit();">
+          <i class="fas fa-paper-plane me-2"></i> Submit My Assessment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  var totalQuestions  = {{ questions|length }};
+  var progressBar     = document.getElementById('assessProgressBar');
+  var progressText    = document.getElementById('assessProgressText');
+  var timerDisplay    = document.getElementById('assessTimer');
+  var form            = document.getElementById('assessmentForm');
+
+  /* ── Option Selection ── */
+  document.querySelectorAll('.quiz-option').forEach(function (option) {
+    option.addEventListener('click', function () {
+      var card  = this.closest('.question-card');
+      var radio = this.querySelector('input[type="radio"]');
+
+      card.querySelectorAll('.quiz-option').forEach(function (opt) {
+        opt.classList.remove('selected');
+        opt.style.transform = '';
+      });
+
+      this.classList.add('selected');
+      this.style.transform = 'scale(1.02)';
+      if (radio) radio.checked = true;
+
+      setTimeout(function () {
+        option.style.transform = '';
+      }, 200);
+
+      updateProgress();
+    });
+  });
+
+  /* ── Progress Update ── */
+  function updateProgress() {
+    var answered = document.querySelectorAll('.quiz-option.selected').length;
+    var percent  = totalQuestions > 0
+      ? Math.round((answered / totalQuestions) * 100)
+      : 0;
+
+    if (progressBar) {
+      progressBar.style.width = percent + '%';
+      progressBar.setAttribute('aria-valuenow', percent);
+    }
+    if (progressText) {
+      progressText.textContent = answered + ' of ' + totalQuestions + ' answered';
+    }
+  }
+
+  /* ── Timer ── */
+  var timeRemaining = totalQuestions * 60;
+
+  var timerInterval = setInterval(function () {
+    timeRemaining--;
+    var minutes = Math.floor(timeRemaining / 60);
+    var seconds = timeRemaining % 60;
+    timerDisplay.textContent =
+      String(minutes).padStart(2, '0') + ':' +
+      String(seconds).padStart(2, '0');
+
+    if (timeRemaining <= 60) {
+      timerDisplay.style.color      = '#fca5a5';
+      timerDisplay.style.fontWeight = '800';
+    } else if (timeRemaining <= 120) {
+      timerDisplay.style.color = '#fcd34d';
+    }
+
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = '00:00';
+      var modal = new bootstrap.Modal(document.getElementById('timeUpModal'));
+      modal.show();
+    }
+  }, 1000);
+
+  /* ── Submit Validation ── */
+  form.addEventListener('submit', function (e) {
+    clearInterval(timerInterval);
+
+    var answered = 0;
+    document.querySelectorAll('.question-card').forEach(function (card) {
+      if (card.querySelector('input[type="radio"]:checked')) answered++;
+    });
+
+    var unanswered = totalQuestions - answered;
+
+    if (unanswered > 0) {
+      e.preventDefault();
+
+      /* Remove old warning */
+      var old = document.getElementById('assessWarning');
+      if (old) old.remove();
+
+      var warning = document.createElement('div');
+      warning.id        = 'assessWarning';
+      warning.className = 'alert text-center mb-3';
+      warning.style.cssText =
+        'background:rgba(245,158,11,0.15);' +
+        'border:1px solid rgba(245,158,11,0.3);' +
+        'border-radius:12px;color:#fcd34d;';
+      warning.innerHTML =
+        '<i class="fas fa-exclamation-triangle me-2"></i>' +
+        '<strong>' + unanswered + ' question(s) unanswered.</strong> ' +
+        'Please answer all questions before submitting.';
+
+      var submitArea = document.getElementById('assessSubmitArea');
+      submitArea.parentNode.insertBefore(warning, submitArea);
+      warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      /* Highlight first unanswered */
+      var cards = document.querySelectorAll('.question-card');
+      for (var i = 0; i < cards.length; i++) {
+        if (!cards[i].querySelector('input[type="radio"]:checked')) {
+          cards[i].style.borderColor = 'rgba(245,158,11,0.6)';
+          cards[i].style.boxShadow   = '0 0 0 3px rgba(245,158,11,0.15)';
+          cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function () {
+            cards[i].style.borderColor = '';
+            cards[i].style.boxShadow   = '';
+          }, 2500);
+          break;
+        }
+      }
+
+      setTimeout(function () { if (warning.parentNode) warning.remove(); }, 5000);
+      return;
+    }
+
+    /* Show loading */
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Evaluating your level...';
+  });
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+
+{% block title %}My Learning Path — Digital Learning Platform Nabha{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <div class="dashboard-header">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1>
+            <i class="fas fa-route me-2"></i>
+            My Learning Path
+          </h1>
+          <p>
+            Your personalized roadmap for
+            <strong>{{ profile.weak_subject }}</strong> —
+            Level:
+            <span class="badge-primary ms-1">{{ profile.level }}</span>
+          </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+          <a href="{{ url_for('student_dashboard') }}"
+             class="btn btn-lg"
+             style="background:rgba(255,255,255,0.1);
+                    color:white;
+                    border:2px solid rgba(255,255,255,0.3);">
+            <i class="fas fa-th-large me-2"></i> Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ============================================================
+         QUICK NAVIGATION
+         ============================================================ -->
+    <div class="dashboard-nav">
+      <a href="{{ url_for('student_dashboard') }}">
+        <i class="fas fa-th-large"></i> Dashboard
+      </a>
+      <a href="{{ url_for('learning_path') }}" class="active">
+        <i class="fas fa-route"></i> My Learning Path
+      </a>
+      <a href="{{ url_for('courses') }}">
+        <i class="fas fa-book"></i> Courses
+      </a>
+      <a href="{{ url_for('videos') }}">
+        <i class="fas fa-play-circle"></i> Videos
+      </a>
+      <a href="{{ url_for('notes') }}">
+        <i class="fas fa-file-alt"></i> Notes
+      </a>
+    </div>
+
+    <!-- ============================================================
+         STATS CARDS
+         ============================================================ -->
+    <div class="row g-3 mb-4">
+
+      <!-- Level -->
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon"
+               style="background:{% if profile.level == 'Beginner' %}
+                        linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.2))
+                      {% elif profile.level == 'Intermediate' %}
+                        linear-gradient(135deg,rgba(245,158,11,0.2),rgba(217,119,6,0.2))
+                      {% else %}
+                        linear-gradient(135deg,rgba(124,58,237,0.2),rgba(109,40,217,0.2))
+                      {% endif %};">
+            <i class="fas fa-signal"
+               style="color:{% if profile.level == 'Beginner' %}#6ee7b7
+                            {% elif profile.level == 'Intermediate' %}#fcd34d
+                            {% else %}#c4b5fd{% endif %};"></i>
+          </div>
+          <div>
+            <div class="stat-card-number" style="font-size:1.2rem;">
+              {{ profile.level }}
+            </div>
+            <div class="stat-card-label">Your Level</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subject -->
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon"
+               style="background:linear-gradient(135deg,rgba(37,99,235,0.2),rgba(29,78,216,0.2));">
+            <i class="fas fa-book" style="color:#93c5fd;"></i>
+          </div>
+          <div>
+            <div class="stat-card-number" style="font-size:1rem;">
+              {{ profile.weak_subject }}
+            </div>
+            <div class="stat-card-label">Focus Subject</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon"
+               style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(217,119,6,0.2));">
+            <i class="fas fa-percentage" style="color:#fcd34d;"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">{{ progress }}%</div>
+            <div class="stat-card-label">Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topics Done -->
+      <div class="col-lg-3 col-md-6 col-6">
+        <div class="stat-card">
+          <div class="stat-card-icon"
+               style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.2));">
+            <i class="fas fa-check-circle" style="color:#6ee7b7;"></i>
+          </div>
+          <div>
+            <div class="stat-card-number">
+              {{ completed_count }}/{{ total_topics }}
+            </div>
+            <div class="stat-card-label">Topics Done</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         OVERALL PROGRESS BAR
+         ============================================================ -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-700 mb-0">
+            <i class="fas fa-chart-line text-primary me-2"></i>
+            Overall Progress
+          </h6>
+          <span class="badge-primary">{{ progress }}% Complete</span>
+        </div>
+        <div class="progress" style="height:14px;border-radius:50px;">
+          <div class="progress-bar"
+               role="progressbar"
+               style="width:{{ progress }}%;
+                      border-radius:50px;
+                      background:var(--gradient-primary);
+                      box-shadow:0 0 10px rgba(37,99,235,0.4);"
+               aria-valuenow="{{ progress }}"
+               aria-valuemin="0"
+               aria-valuemax="100">
+          </div>
+        </div>
+        {% if current_topic %}
+        <p class="mt-2 mb-0 small" style="color:rgba(255,255,255,0.6);">
+          <i class="fas fa-arrow-right me-1 text-primary"></i>
+          Currently working on:
+          <strong style="color:white;">{{ current_topic.topic }}</strong>
+        </p>
+        {% else %}
+        <p class="mt-2 mb-0 small" style="color:#6ee7b7;">
+          <i class="fas fa-trophy me-1"></i>
+          Congratulations! You have completed all topics!
+        </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ============================================================
+         ROADMAP TIMELINE
+         ============================================================ -->
+    <div class="row g-4">
+
+      <!-- Timeline -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h5 class="fw-700 mb-4">
+              <i class="fas fa-map-signs text-primary me-2"></i>
+              Your Learning Roadmap
+            </h5>
+
+            {% if path %}
+            <div class="position-relative">
+
+              {% for topic in path %}
+              <div class="d-flex gap-3 mb-3 align-items-start roadmap-item"
+                   id="topic-row-{{ topic.id }}">
+
+                <!-- Timeline Line + Icon -->
+                <div class="d-flex flex-column align-items-center"
+                     style="width:44px;flex-shrink:0;">
+
+                  <!-- Circle Icon -->
+                  <div class="roadmap-circle"
+                       style="width:44px;height:44px;border-radius:50%;
+                              display:flex;align-items:center;justify-content:center;
+                              font-size:1rem;flex-shrink:0;
+                              {% if topic.status == 'completed' %}
+                                background:linear-gradient(135deg,#10b981,#059669);
+                                box-shadow:0 0 15px rgba(16,185,129,0.4);
+                                color:white;
+                              {% elif topic.status == 'unlocked' %}
+                                background:var(--gradient-primary);
+                                box-shadow:0 0 15px rgba(37,99,235,0.4);
+                                color:white;
+                                animation:pulse-glow 2s ease-in-out infinite;
+                              {% else %}
+                                background:rgba(255,255,255,0.06);
+                                border:2px solid rgba(255,255,255,0.12);
+                                color:rgba(255,255,255,0.3);
+                              {% endif %}">
+                    {% if topic.status == 'completed' %}
+                      <i class="fas fa-check"></i>
+                    {% elif topic.status == 'unlocked' %}
+                      <i class="fas fa-play"></i>
+                    {% else %}
+                      <i class="fas fa-lock"></i>
+                    {% endif %}
+                  </div>
+
+                  <!-- Vertical connector line -->
+                  {% if not loop.last %}
+                  <div style="width:2px;flex:1;min-height:20px;margin-top:4px;
+                              {% if topic.status == 'completed' %}
+                                background:linear-gradient(to bottom,#10b981,rgba(16,185,129,0.3));
+                              {% else %}
+                                background:rgba(255,255,255,0.08);
+                              {% endif %}">
+                  </div>
+                  {% endif %}
+                </div>
+
+                <!-- Topic Card -->
+                <div class="flex-grow-1 mb-2"
+                     style="background:{% if topic.status == 'completed' %}
+                              rgba(16,185,129,0.08)
+                            {% elif topic.status == 'unlocked' %}
+                              rgba(37,99,235,0.12)
+                            {% else %}
+                              rgba(255,255,255,0.04)
+                            {% endif %};
+                            border:1px solid {% if topic.status == 'completed' %}
+                              rgba(16,185,129,0.25)
+                            {% elif topic.status == 'unlocked' %}
+                              rgba(37,99,235,0.35)
+                            {% else %}
+                              rgba(255,255,255,0.08)
+                            {% endif %};
+                            border-radius:14px;
+                            padding:1rem 1.25rem;
+                            transition:all 0.3s;">
+
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                      <!-- Topic Number + Name -->
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span style="font-size:0.75rem;
+                                     color:rgba(255,255,255,0.4);
+                                     font-weight:600;">
+                          Topic {{ topic.topic_order + 1 }}
+                        </span>
+                        {% if topic.status == 'completed' %}
+                          <span class="badge-success">Completed</span>
+                        {% elif topic.status == 'unlocked' %}
+                          <span class="badge-primary">In Progress</span>
+                        {% else %}
+                          <span style="background:rgba(255,255,255,0.06);
+                                       color:rgba(255,255,255,0.3);
+                                       padding:0.2rem 0.6rem;
+                                       border-radius:50px;
+                                       font-size:0.72rem;
+                                       font-weight:600;">
+                            Locked
+                          </span>
+                        {% endif %}
+                      </div>
+
+                      <h6 class="mb-0 fw-700"
+                          style="color:{% if topic.status == 'locked' %}
+                                   rgba(255,255,255,0.35)
+                                 {% else %}white{% endif %};">
+                        {{ topic.topic }}
+                      </h6>
+
+                      {% if topic.completed_at %}
+                      <small style="color:rgba(255,255,255,0.4);">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        Completed on {{ topic.completed_at.strftime('%d %b %Y') if topic.completed_at }}
+                      </small>
+                      {% endif %}
+                    </div>
+
+                    <!-- Action Button -->
+                    {% if topic.status == 'unlocked' %}
+                    <button class="btn btn-primary btn-sm complete-btn"
+                            data-topic-id="{{ topic.id }}"
+                            onclick="markComplete({{ topic.id }}, this)">
+                      <i class="fas fa-check me-1"></i> Mark Complete
+                    </button>
+                    {% elif topic.status == 'completed' %}
+                    <div style="color:#6ee7b7;font-size:1.3rem;">
+                      <i class="fas fa-check-circle"></i>
+                    </div>
+                    {% else %}
+                    <div style="color:rgba(255,255,255,0.2);font-size:1.2rem;">
+                      <i class="fas fa-lock"></i>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+              </div>
+              {% endfor %}
+
+            </div>
+            {% else %}
+            <div class="empty-state py-4">
+              <div class="empty-state-icon">
+                <i class="fas fa-route"></i>
+              </div>
+              <h4>No Roadmap Yet</h4>
+              <p>Complete the assessment to generate your roadmap.</p>
+              <a href="{{ url_for('onboarding') }}" class="btn btn-primary">
+                Start Assessment
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Info Cards -->
+      <div class="col-lg-4">
+
+        <!-- Current Topic Card -->
+        {% if current_topic %}
+        <div class="card border-0 shadow-sm mb-4"
+             style="background:linear-gradient(135deg,rgba(37,99,235,0.3),rgba(124,58,237,0.3));
+                    border:1px solid rgba(255,255,255,0.15) !important;">
+          <div class="card-body p-4 text-center">
+            <div class="mx-auto mb-3"
+                 style="width:55px;height:55px;
+                        background:rgba(255,255,255,0.15);
+                        border-radius:50%;
+                        display:flex;align-items:center;
+                        justify-content:center;font-size:1.4rem;">
+              <i class="fas fa-bullseye"></i>
+            </div>
+            <h6 class="fw-700 mb-1">Current Focus</h6>
+            <p class="mb-0 small" style="color:rgba(255,255,255,0.7);">
+              Topic {{ current_topic.topic_order + 1 }} of {{ total_topics }}
+            </p>
+            <h5 class="fw-800 mt-2 mb-3">{{ current_topic.topic }}</h5>
+            <button class="btn w-100 complete-btn"
+                    style="background:white;color:var(--primary);font-weight:700;"
+                    data-topic-id="{{ current_topic.id }}"
+                    onclick="markComplete({{ current_topic.id }}, this)">
+              <i class="fas fa-check me-2"></i> Mark as Complete
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Profile Summary Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h6 class="fw-700 mb-3">
+              <i class="fas fa-user-graduate text-primary me-2"></i>
+              Learning Profile
+            </h6>
+            <ul class="list-unstyled mb-0">
+              <li class="d-flex justify-content-between py-2"
+                  style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <span style="color:rgba(255,255,255,0.55);font-size:0.85rem;">Class</span>
+                <span class="fw-600 small">{{ profile.class_name }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-2"
+                  style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <span style="color:rgba(255,255,255,0.55);font-size:0.85rem;">Language</span>
+                <span class="fw-600 small">{{ profile.language }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-2"
+                  style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <span style="color:rgba(255,255,255,0.55);font-size:0.85rem;">Subject</span>
+                <span class="fw-600 small">{{ profile.weak_subject }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-2"
+                  style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <span style="color:rgba(255,255,255,0.55);font-size:0.85rem;">Level</span>
+                <span class="fw-600 small">{{ profile.level }}</span>
+              </li>
+              <li class="d-flex justify-content-between py-2">
+                <span style="color:rgba(255,255,255,0.55);font-size:0.85rem;">Assessment Score</span>
+                <span class="fw-600 small">{{ profile.assessment_score }}/8</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tips Card -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h6 class="fw-700 mb-3">
+              <i class="fas fa-lightbulb text-warning me-2"></i>
+              Learning Tips
+            </h6>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2 small" style="color:rgba(255,255,255,0.65);">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                Complete one topic before moving to next
+              </li>
+              <li class="mb-2 small" style="color:rgba(255,255,255,0.65);">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                Watch related videos for each topic
+              </li>
+              <li class="mb-2 small" style="color:rgba(255,255,255,0.65);">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                Download notes for offline revision
+              </li>
+              <li class="mb-0 small" style="color:rgba(255,255,255,0.65);">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                Take the quiz after each topic
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="py-4"></div>
+
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div id="completeToast"
+     style="position:fixed;bottom:2rem;right:2rem;
+            background:rgba(16,185,129,0.95);
+            color:white;
+            padding:1rem 1.5rem;
+            border-radius:14px;
+            display:none;
+            z-index:9999;
+            box-shadow:0 8px 30px rgba(16,185,129,0.4);
+            font-weight:600;
+            align-items:center;gap:0.75rem;">
+  <i class="fas fa-check-circle fa-lg"></i>
+  <span id="toastMessage">Topic completed!</span>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* ── Pulse animation for current topic ── */
+var style = document.createElement('style');
+style.textContent =
+  '@keyframes pulse-glow {' +
+  '  0%,100% { box-shadow: 0 0 15px rgba(37,99,235,0.4); }' +
+  '  50%      { box-shadow: 0 0 30px rgba(37,99,235,0.8); }' +
+  '}';
+document.head.appendChild(style);
+
+/* ── Mark topic as complete via AJAX ── */
+function markComplete(topicId, btn) {
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+
+  fetch('/learning-path/complete/' + topicId, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function (res) { return res.json(); })
+  .then(function (data) {
+    if (data.success) {
+      showToast('Topic completed! Next topic unlocked.');
+      setTimeout(function () { location.reload(); }, 1500);
+    } else {
+      btn.disabled  = false;
+      btn.innerHTML = '<i class="fas fa-check me-1"></i> Mark Complete';
+      showToast('Something went wrong. Please try again.');
+    }
+  })
+  .catch(function () {
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="fas fa-check me-1"></i> Mark Complete';
+    showToast('Connection error. Please try again.');
+  });
+}
+
+/* ── Toast notification ── */
+function showToast(message) {
+  var toast = document.getElementById('completeToast');
+  var msg   = document.getElementById('toastMessage');
+  if (msg)   msg.textContent = message;
+  if (toast) {
+    toast.style.display = 'flex';
+    setTimeout(function () {
+      toast.style.display = 'none';
+    }, 3000);
+  }
+}
+</script>
+{% endblock %}

@@ -8,8 +8,9 @@
 
 <section style="min-height: calc(100vh - 70px);
                 display: flex; align-items: center;
-                padding: 3rem 0;">
-  <div class="container">
+                padding: 3rem 0;
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);">  
+<div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-sm-11">
 
@@ -79,8 +80,7 @@
         <!-- End Step Indicator -->
 
         <!-- Onboarding Card -->
-        <div class="form-wrapper animate-fade-up">
-
+<div class="form-wrapper animate-fade-up" style="background:rgba(15,12,41,0.5);border:1px solid rgba(255,255,255,0.1);">
           <!-- Card Header -->
           <div class="form-header text-center">
             <div class="mx-auto mb-3"
@@ -99,7 +99,7 @@
           </div>
 
           <!-- Card Body -->
-          <div class="form-body">
+<div class="form-body" style="background:rgba(15,12,41,0.6);backdrop-filter:blur(10px);">
             <form method="POST"
                   action="{{ url_for('onboarding') }}"
                   id="onboardingForm"
